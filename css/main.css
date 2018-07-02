@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css?family=Source Sans Pro:400,700,400italic,700italic&subset=latin');/*!
+/* CSS declarations go here  */
+body{background:#f2f2f2 !important; font-family:'Source Sans Pro','Helvetica Neue',Arial,Helvetica,sans-serif !important}
+
+.ribbon {
+  padding: 100px;
+  height: 300px;
+  text-align: -webkit-center;
+  margin-bottom: 20px;
+}
+
+.card img {
+  width: 130px;
+  height: 120px;
+}
+
+.card .btn {
+  margin-top: 10px;
+  border-radius: 2px;
+}
+
+.title {
+  margin-bottom: 30px;
+  color: #000000;
+}
+
+#address {
+  width: 400px;
+  text-align: center;
+}
