@@ -16,5 +16,9 @@
     "express-validator": "^5.2.0",
     "truffle-hdwallet-provider": "0.0.5",
     "web3": "^1.0.0-beta.34"
+  },
+  "engines": {
+      "node": "10.4.1",
+      "npm": "6.1.0"
   }
 }
