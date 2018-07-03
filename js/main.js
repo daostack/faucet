@@ -27,6 +27,8 @@ jQuery(document).ready(function() {
     if (web3.isAddress(address)) {
       $.post($(this).attr('action'), $(this).serialize(), function(response) {
         toastr.success('GENs were transfered to your account', 'Transaction Success');
+        $("#txUrl").text("View Transaction");
+        $("#txUrl").attr("href", "https://kovan.etherscan.io/tx/" + response);
       });
     } else {
       toastr.error("Please enter a valid address", "Invalid Ethereum Address");
