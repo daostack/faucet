@@ -63,14 +63,11 @@ app.post('/request_token/', function(request, response) {
       chainId: 42
     }
 
-    console.log(txParams);
-
     const tx = new EthereumTx(txParams);
     tx.sign(privateKey);
     const serializedTx = tx.serialize().toString('hex');
 
     web3.eth.sendSignedTransaction('0x' + serializedTx, (error, result) => {
-      console.log(result);
       response.send(result);
     });
   });
