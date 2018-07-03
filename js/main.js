@@ -32,6 +32,8 @@ jQuery(document).ready(function() {
       toastr.error("Please enter a valid address", "Invalid Ethereum Address");
     }
 
+
+    $("#requestBtn").prop('disabled', true);
     grecaptcha.reset();
 
     return false;
