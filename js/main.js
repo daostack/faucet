@@ -7,10 +7,6 @@ if (typeof web3 !== 'undefined') {
 
 jQuery(document).ready(function() {
 
-
-
-  console.log(web3);
-
   web3.version.getNetwork((err, networkId) => {
     if (networkId != 42) {
       toastr.error("Please switch to Kovan", "You're on the worng network");
@@ -36,7 +32,7 @@ jQuery(document).ready(function() {
       toastr.error("Please enter a valid address", "Invalid Ethereum Address");
     }
 
-
+    grecaptcha.reset();
 
     return false;
   });
