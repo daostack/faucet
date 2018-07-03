@@ -21,10 +21,19 @@
 
    var $form = $('form');
    $form.submit(function(){
-      $.post($(this).attr('action'), $(this).serialize(), function(response){
-						toastr.success('GENs were transfered to your account', 'Transaction Success');
-      });
-      return false;
+		 var address = $("#address").val();
+
+		 if (web3.isAddress(address)) {
+			 $.post($(this).attr('action'), $(this).serialize(), function(response){
+ 						toastr.success('GENs were transfered to your account', 'Transaction Success');
+       });
+		 } else {
+			 toastr.error("Please enter a valid address", "Invalid Ethereum Address");
+		 }
+
+
+
+  		return false;
    });
 	});
 
