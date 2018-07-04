@@ -1,4 +1,6 @@
-var tokenABIJSON = require ('./tokenABI.json');
+var tokenABIJSON = require ('./tokenABI.json'); // TODO: In the tokenABI.json file, 
+                                                // you can change the ABI to your own token's ABI 
+                                                // or leave it as is (as long as your token is ERC20 compatible) 
 
 const ethUtil = require('ethereumjs-util')
 
@@ -43,20 +45,31 @@ app.post('/request_token/', function(request, response) {
       var Web3 = require('web3');
       var web3 = new Web3();
 
-      web3.setProvider(new web3.providers.HttpProvider(process.env.WEB3_PROVIDER));
+      web3.setProvider(new web3.providers.HttpProvider(process.env.WEB3_PROVIDER)); // TODO: in our implementation, 
+                                                                                    // we used Heroku to store and 
+                                                                                    // retrive the process.env arguments.
+                                                                                    // You can either use Heroku as well or change 
+                                                                                    // it to a constant string 
+                                                                                    // eg. https://kovan.infura.io/<your-token>
 
       var tokenABI = tokenABIJSON;
 
 
-      var token = new web3.eth.Contract(tokenABI, process.env.TOKEN_CONTRACT);
+      var token = new web3.eth.Contract(tokenABI, process.env.TOKEN_CONTRACT); // TODO: set your own token contract value
+                                                                               // (either as a constant or a string literal)
 
-      var tokenDecimals = process.env.TOKEN_DECIMALS
+      var tokenDecimals = process.env.TOKEN_DECIMALS // TODO: set your own token decimals (number) eg. 18.
 
-      var data = token.methods.transfer(request.body.address, process.env.GEN_DROP_SIZE * (10 ** tokenDecimals)).encodeABI();
+      var data = token.methods.transfer(request.body.address, process.env.TOKEN_DROP_SIZE * (10 ** tokenDecimals)).encodeABI(); // TODO: set token drop size to the amount of tokens
+                                                                                                                                // you would like the faucet to send for each request 
 
 
       const EthereumTx = require('ethereumjs-tx');
-      const privateKey = Buffer.from(process.env.PRIVATE_KEY, 'hex');
+      const privateKey = Buffer.from(process.env.PRIVATE_KEY, 'hex'); // TODO: set your own private key here.
+                                                                      // This private key should be the private key of the
+                                                                      // account you would like to use as your funding address. 
+                                                                      // Please make sure to remember to deposit your token 
+                                                                      // into this address.
 
       const faucetAddress = ethUtil.privateToAddress(privateKey).toString('hex');
 
@@ -66,7 +79,7 @@ app.post('/request_token/', function(request, response) {
           nonce: "0x" + nonce.toString(16).toUpperCase(),
           gasPrice: '0x2540BE400', // Gas Price = 10000000000 wei = 10 Gwei,
           gasLimit: '0x11170', // Gas Limit = 70,000 units
-          to: process.env.TOKEN_CONTRACT,
+          to: process.env.TOKEN_CONTRACT, // TODO: set your own token contract value
           value: '0x00',
           data: data,
           chainId: 42
@@ -75,7 +88,6 @@ app.post('/request_token/', function(request, response) {
         const tx = new EthereumTx(txParams);
         tx.sign(privateKey);
         const serializedTx = tx.serialize().toString('hex');
-
         web3.eth.sendSignedTransaction('0x' + serializedTx, (error, result) => {
           response.send(result);
         });
@@ -90,7 +102,7 @@ app.post('/request_token/', function(request, response) {
 
 // Helper function to make API call to recatpcha and check response
 function verifyRecaptcha(key, callback) {
-  https.get("https://www.google.com/recaptcha/api/siteverify?secret=" + process.env.CAPTCHA_SECRET + "&response=" + key, function(res) {
+  https.get("https://www.google.com/recaptcha/api/siteverify?secret=" + process.env.CAPTCHA_SECRET + "&response=" + key, function(res) { //  TODO: set your own reCaptcha SECRET key.
     var data = "";
     res.on('data', function(chunk) {
       data += chunk.toString();
