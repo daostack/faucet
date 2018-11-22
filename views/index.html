@@ -17,10 +17,11 @@
 <body>
 	<div class="ribbon">
 		<div class="container">
-			<h2 class="title">DAOstack Kovan Faucet</h2> <!-- TODO: Replace DAOstack with your project name -->
+			<h2 class="title" id="pageTitle">DAOstack Kovan Faucet</h2> <!-- TODO: Replace DAOstack with your project name -->
+			<button type="button" class="btn btn-secondary" id="switchNetworkBtn" style="font-size: 12px; margin-bottom: 15px; margin-top: -10px;">Switch to Rinkeby Faucet</button>
 			<div class="card" style="max-width:600px;">
 				<div class="card-block">
-					<form class="form-register" action="/request_token/" method="post">
+					<form class="form-register" action="/request_token_kovan/" method="post" id="requestTokenForm">
 						<input type="text" id="address" name="address" placeholder="address" value="" />
 						<br/>
 						<div>
@@ -30,12 +31,12 @@
 							<div class="col-5 offset-1">
 								<p>Ether</p>
 								<img src="eth.png" />
-								<p><b>Balance</b>: <span id="etherBalance"><span></p>
+								<p><b>Balance</b>: </p> <p id="etherBalance"></p>
 							</div>
 							<div class="col-5">
 								<p>GEN</p> <!-- TODO: Replace GEN with your token -->
 								<img src="gen.png" /> <!-- TODO: Replace gen with your token -->
-								<p><b>Balance</b>: <span id="tokenBalance"><span></p>
+								<p><b>Balance</b>: </p> <p id="tokenBalance"></p>
 						</div>
 					</div>
 					<div class="g-recaptcha" data-sitekey="6LcHOWIUAAAAACnDC_8WrPt8h4jmBkCQsA896BLh" data-callback="enableRequest"></div> <!-- TODO: Replace data-sitekey with your own reCaptcha PUBLIC key -->

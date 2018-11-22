@@ -1,7 +1,10 @@
-if (typeof web3 !== 'undefined') {
-  web3 = new Web3(web3.currentProvider);
+let faucetNetworkId = 42;
+
+// set the provider you want from Web3.providers
+if (faucetNetworkId == 4) {
+  web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/ZPYiBjZ9mzeoN0UkPLB0')); // TODO: set to your Infura token.
 } else {
-  // set the provider you want from Web3.providers
+  faucetNetworkId = 42;
   web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/ZPYiBjZ9mzeoN0UkPLB0')); // TODO: set to your Infura token.
 }
 
@@ -13,8 +16,10 @@ var tokenABI = JSON.parse(
 jQuery(document).ready(function() {
 
   web3.version.getNetwork((err, networkId) => {
-    if (networkId != 42) {
-      toastr.error("Please switch to Kovan", "You're on the worng network");
+    if (networkId != 42 || networkId != 4) {
+      toastr.error("Please switch to Kovan or Rinkeby", "You're on the worng network");
+    } else {
+      switchNetwork(networkId);
     }
   });
 
@@ -25,7 +30,7 @@ jQuery(document).ready(function() {
     getEtherBalance($("#address").val());
   }
 
-  var $form = $('form');
+  var $form = $('#requestTokenForm');
   $form.submit(function() {
     var address = $("#address").val();
 
@@ -33,7 +38,11 @@ jQuery(document).ready(function() {
       $.post($(this).attr('action'), $(this).serialize(), function(response) {
         toastr.info('GENs were transfered to your account', 'Transaction Sent');
         $("#txUrl").text("View Transaction");
-        $("#txUrl").attr("href", "https://kovan.etherscan.io/tx/" + response);
+        if (faucetNetworkId == 4) {
+          $("#txUrl").attr("href", "https://rinkeby.etherscan.io/tx/" + response);
+        } else {
+          $("#txUrl").attr("href", "https://kovan.etherscan.io/tx/" + response);
+        }
       });
     } else {
       toastr.error("Please enter a valid address", "Invalid Ethereum Address");
@@ -46,7 +55,35 @@ jQuery(document).ready(function() {
     return false;
   });
 
+  $("#switchNetworkBtn").click(function() {
+    if (faucetNetworkId == 42) {
+      switchNetwork(4);
+    } else {
+      switchNetwork(42);
+    }
+  });
+
 });
+
+function switchNetwork(newNetworkId) {
+  if (newNetworkId != 42 && newNetworkId != 4) {
+    return;
+  }
+  faucetNetworkId = newNetworkId;
+  if (newNetworkId == 4) {
+    web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/ZPYiBjZ9mzeoN0UkPLB0')); // TODO: set to your Infura token.
+    $("#requestTokenForm").attr("action", "/request_token_rinkeby/");
+    $("#pageTitle").text("DAOstack Rinkeby Faucet");
+    $("#switchNetworkBtn").text("Switch to Kovan Faucet");
+  } else {
+    web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/ZPYiBjZ9mzeoN0UkPLB0')); // TODO: set to your Infura token.
+    $("#requestTokenForm").attr("action", "/request_token_kovan/");    
+    $("#pageTitle").text("DAOstack Kovan Faucet");
+    $("#switchNetworkBtn").text("Switch to Rinkeby Faucet");
+  }
+  getTokenBalance($("#address").val());
+  getEtherBalance($("#address").val());
+}
 
 $("#address").change(function() {
   getTokenBalance($("#address").val());

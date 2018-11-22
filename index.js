@@ -38,19 +38,40 @@ app.listen(app.get('port'), function() {
 })
 
 
-app.post('/request_token/', function(request, response) {
+app.post('/request_token_kovan/', function(request, response) {
+  transferTokens(request, response, 42)
+});
+
+app.post('/request_token_rinkeby/', function(request, response) {
+  transferTokens(request, response, 4)
+});
+
+function transferTokens(request, response, networkId) {
   verifyRecaptcha(request.body["g-recaptcha-response"], function(success) {
     if (success) {
 
       var Web3 = require('web3');
       var web3 = new Web3();
 
-      web3.setProvider(new web3.providers.HttpProvider(process.env.WEB3_PROVIDER)); // TODO: in our implementation, 
-                                                                                    // we used Heroku to store and 
-                                                                                    // retrive the process.env arguments.
-                                                                                    // You can either use Heroku as well or change 
-                                                                                    // it to a constant string 
-                                                                                    // eg. https://kovan.infura.io/<your-token>
+      if (networkId == 4){
+        web3.setProvider(new web3.providers.HttpProvider(process.env.RINKEBY_WEB3_PROVIDER)); // TODO: in our implementation, 
+                                                                                      // we used Heroku to store and 
+                                                                                      // retrive the process.env arguments.
+                                                                                      // You can either use Heroku as well or change 
+                                                                                      // it to a constant string 
+                                                                                      // eg. https://rinkeby.infura.io/<your-token>
+      } else if (networkId == 42) {
+        web3.setProvider(new web3.providers.HttpProvider(process.env.KOVAN_WEB3_PROVIDER)); // TODO: in our implementation, 
+                                                                                      // we used Heroku to store and 
+                                                                                      // retrive the process.env arguments.
+                                                                                      // You can either use Heroku as well or change 
+                                                                                      // it to a constant string 
+                                                                                      // eg. https://kovan.infura.io/<your-token>
+      } else {
+        response.sendStatus(400).json({
+          error: 'Invalid request'
+        });
+      }
 
       var tokenABI = tokenABIJSON;
 
@@ -82,7 +103,7 @@ app.post('/request_token/', function(request, response) {
           to: process.env.TOKEN_CONTRACT, // TODO: set your own token contract value
           value: '0x00',
           data: data,
-          chainId: 42
+          chainId: networkId
         }
 
         const tx = new EthereumTx(txParams);
@@ -98,7 +119,7 @@ app.post('/request_token/', function(request, response) {
       });
     }
   });
-});
+}
 
 // Helper function to make API call to recatpcha and check response
 function verifyRecaptcha(key, callback) {
