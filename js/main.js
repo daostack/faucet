@@ -16,7 +16,7 @@ var tokenABI = JSON.parse(
 jQuery(document).ready(function() {
 
   web3.version.getNetwork((err, networkId) => {
-    if (networkId != 42 || networkId != 4) {
+    if (networkId != 42 && networkId != 4) {
       toastr.error("Please switch to Kovan or Rinkeby", "You're on the worng network");
     } else {
       switchNetwork(networkId);
