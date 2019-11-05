@@ -1,11 +1,11 @@
-let faucetNetworkId = 42;
+let faucetNetwork = 'kovan';
 
 // set the provider you want from Web3.providers
-if (faucetNetworkId == 4) {
-  web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/ZPYiBjZ9mzeoN0UkPLB0')); // TODO: set to your Infura token.
+if (faucetNetwork == 'rinkeby') {
+  web3 = new Web3(new Web3.providers.WebsocketProvider('wss://rinkeby.infura.io/ws/v3/4816e94be9c4429dbc23d8b59077bfd0')); // TODO: set to your Infura token.
 } else {
-  faucetNetworkId = 42;
-  web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/ZPYiBjZ9mzeoN0UkPLB0')); // TODO: set to your Infura token.
+  faucetNetwork = 'kovan';
+  web3 = new Web3(new Web3.providers.WebsocketProvider('wss://kovan.infura.io/ws/v3/4816e94be9c4429dbc23d8b59077bfd0')); // TODO: set to your Infura token.
 }
 
 var tokenABI = JSON.parse(
@@ -13,32 +13,45 @@ var tokenABI = JSON.parse(
   // TODO: set your token ABI here or leave this as is.
 );
 
-jQuery(document).ready(function() {
+window.addEventListener('load', async () => {
+  // Modern dapp browsers...
+  if (window.ethereum) {
+    window.web3 = new Web3(ethereum);
+    try {
+      await ethereum.enable();
+    } catch (error) {
+      console.log('An error occured: ' + error);
+    }
+  } else if (window.web3) {
+    window.web3 = new Web3(web3.currentProvider);
+  } else {
+    console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+  }
 
-  web3.version.getNetwork((err, networkId) => {
-    if (networkId != 42 && networkId != 4) {
+  web3.eth.net.getNetworkType((err, network) => {
+    if (network != 'kovan' && network != 'rinkeby') {
       toastr.error("Please switch to Kovan or Rinkeby", "You're on the worng network");
     } else {
-      switchNetwork(networkId);
+      switchNetwork(network);
     }
   });
 
-  var defaultAddress = web3.eth.accounts[0];
+  var defaultAddress = (await web3.eth.getAccounts())[0];
   if (defaultAddress != "") {
     $("#address").val(defaultAddress);
-    getTokenBalance(defaultAddress);
+    await getTokenBalance(defaultAddress);
     getEtherBalance($("#address").val());
   }
 
   var $form = $('#requestTokenForm');
-  $form.submit(function() {
+  $form.submit(function () {
     var address = $("#address").val();
 
-    if (web3.isAddress(address)) {
-      $.post($(this).attr('action'), $(this).serialize(), function(response) {
+    if (web3.utils.isAddress(address)) {
+      $.post($(this).attr('action'), $(this).serialize(), function (response) {
         toastr.info('GENs were transfered to your account', 'Transaction Sent');
         $("#txUrl").text("View Transaction");
-        if (faucetNetworkId == 4) {
+        if (faucetNetwork == 'rinkeby') {
           $("#txUrl").attr("href", "https://rinkeby.etherscan.io/tx/" + response);
         } else {
           $("#txUrl").attr("href", "https://kovan.etherscan.io/tx/" + response);
@@ -55,74 +68,72 @@ jQuery(document).ready(function() {
     return false;
   });
 
-  $("#switchNetworkBtn").click(function() {
-    if (faucetNetworkId == 42) {
-      switchNetwork(4);
+  $("#switchNetworkBtn").click(function () {
+    if (faucetNetwork == 'kovan') {
+      switchNetwork('rinkeby');
     } else {
-      switchNetwork(42);
+      switchNetwork('kovan');
     }
   });
 
 });
 
-function switchNetwork(newNetworkId) {
-  if (newNetworkId != 42 && newNetworkId != 4) {
+async function switchNetwork(newNetwork) {
+  if (newNetwork != 'kovan' && newNetwork != 'rinkeby') {
     return;
   }
-  faucetNetworkId = newNetworkId;
-  if (newNetworkId == 4) {
-    web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/ZPYiBjZ9mzeoN0UkPLB0')); // TODO: set to your Infura token.
+  faucetNetwork = newNetwork;
+  if (newNetwork == 'rinkeby') {
+    web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/v3/4816e94be9c4429dbc23d8b59077bfd0')); // TODO: set to your Infura token.
     $("#requestTokenForm").attr("action", "/request_token_rinkeby/");
     $("#pageTitle").text("DAOstack Rinkeby Faucet");
     $("#switchNetworkBtn").text("Switch to Kovan Faucet");
   } else {
-    web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/ZPYiBjZ9mzeoN0UkPLB0')); // TODO: set to your Infura token.
-    $("#requestTokenForm").attr("action", "/request_token_kovan/");    
+    web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/v3/4816e94be9c4429dbc23d8b59077bfd0')); // TODO: set to your Infura token.
+    $("#requestTokenForm").attr("action", "/request_token_kovan/");
     $("#pageTitle").text("DAOstack Kovan Faucet");
     $("#switchNetworkBtn").text("Switch to Rinkeby Faucet");
   }
-  getTokenBalance($("#address").val());
+  await getTokenBalance($("#address").val());
   getEtherBalance($("#address").val());
 }
 
-$("#address").change(function() {
-  getTokenBalance($("#address").val());
+$("#address").change(async function () {
+  await getTokenBalance($("#address").val());
   getEtherBalance($("#address").val());
 });
 
-function getTokenBalance(address) {
+async function getTokenBalance(address) {
 
-  if (!web3.isAddress(address)) {
+  if (!web3.utils.isAddress(address)) {
     return;
   }
 
-  var token = web3.eth.contract(tokenABI).at("0x543Ff227F64Aa17eA132Bf9886cAb5DB55DCAddf"); // TODO: set your own token contract address
-
-  var transferEvent = token.Transfer({
-    to: address
-  });
-
-  transferEvent.watch(function(error, result) {
-    transferEvent.stopWatching();
-    getTokenBalance(address);
+  var token = new web3.eth.Contract(tokenABI, '0x543Ff227F64Aa17eA132Bf9886cAb5DB55DCAddf', undefined); // TODO: set your own token contract address
+  token.events.Transfer({
+    filter: {
+      to: address
+    },
+    fromBlock: 'latest'
+  }, async (error, result) => {
+    console.log(result)
+    console.log(error)
+    // await getTokenBalance(address);
     toastr.success('GENs were transfered to your account', 'Transaction Success'); // TODO: replace GEN with your own token contract
   });
 
-  token.balanceOf(address, (error, balance) => {
-    token.decimals((error, decimals) => {
-      // calculate a balance
-      balance = balance.div(10 ** decimals);
-      $("#tokenBalance").text(balance);
-    });
-  });
+  let balance = await token.methods.balanceOf(address).call();
+  let decimals = await token.methods.decimals().call();
+  balance = balance / (10 ** decimals);
+  $("#tokenBalance").text(balance);
 }
 
 function getEtherBalance(address) {
-  if (!web3.isAddress(address)) {
+  if (!web3.utils.isAddress(address)) {
     return;
   }
   var balance = web3.eth.getBalance(address, (error, balance) => {
-    $("#etherBalance").text(web3.fromWei(balance));
+    $("#etherBalance").text(web3.utils.fromWei(balance));
   });
 }
 

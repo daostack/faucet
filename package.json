@@ -15,7 +15,7 @@
     "express": "^4.9.8",
     "express-validator": "^5.2.0",
     "typedarray-to-buffer": "^3.1.5",
-    "web3": "^1.0.0-beta.34"
+    "web3": "^1.2.0"
   },
   "engines": {
     "node": "10.4.1",
