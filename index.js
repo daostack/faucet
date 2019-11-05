@@ -79,7 +79,7 @@ function transferTokens(request, response, networkId) {
       var token = new web3.eth.Contract(tokenABI, process.env.TOKEN_CONTRACT); // TODO: set your own token contract value
                                                                                // (either as a constant or a string literal)
 
-      var data = token.methods.transfer(request.body.address, web3.utils.toWei((process.env.TOKEN_DROP_SIZE).toString())).encodeABI(); // TODO: set token drop size to the amount of tokens
+      var data = token.methods.transfer(request.body.address, web3.utils.toWei(process.env.TOKEN_DROP_SIZE.toString())).encodeABI(); // TODO: set token drop size to the amount of tokens
                                                                                                                                 // you would like the faucet to send for each request 
 
 
