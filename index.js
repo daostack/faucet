@@ -81,7 +81,7 @@ function transferTokens(request, response, networkId) {
 
       var tokenDecimals = process.env.TOKEN_DECIMALS // TODO: set your own token decimals (number) eg. 18.
 
-      var data = token.methods.transfer(request.body.address, process.env.TOKEN_DROP_SIZE * (10 ** tokenDecimals)).encodeABI(); // TODO: set token drop size to the amount of tokens
+      var data = token.methods.transfer(request.body.address, web3.utils.toWei(process.env.TOKEN_DROP_SIZE * (10 ** tokenDecimals).toString())).encodeABI(); // TODO: set token drop size to the amount of tokens
                                                                                                                                 // you would like the faucet to send for each request 
 
 
